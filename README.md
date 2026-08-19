@@ -18,19 +18,32 @@ A mobile alarm application built with **React Native** and **Expo**.
 - Delete alarms
 - Persistent storage across app restarts
 
-### Getting started (development)
+### Install on your phone (recommended: GitHub Actions)
 
-```bash
-cd alarm-app
-npm install
-npm start
+Every push to `main` that changes `alarm-app/` automatically builds a debug APK via GitHub Actions and publishes it here:
+
+**[Download latest APK → Releases](https://github.com/Nimish05Z/Animax/releases/tag/latest-apk)**
+
+Direct link (always the newest build on `main`):
+
+```
+https://github.com/Nimish05Z/Animax/releases/download/latest-apk/WakeUp.apk
 ```
 
-Scan the QR code with the **Expo Go** app on your phone, or press `a` for Android emulator / `i` for iOS simulator.
+**Workflow:**
+1. Edit the alarm app in Cursor
+2. Commit and push to `main`
+3. GitHub Actions runs Gradle and uploads `WakeUp.apk`
+4. Open the release link on your phone → download → install
 
-### Install directly on your phone (APK)
+**On your phone:**
+1. Enable **Install unknown apps** for your browser (Settings → Security)
+2. Download `WakeUp.apk`
+3. Tap **Install** — no Expo Go needed
 
-You do **not** need Expo Go for this. Build a standalone `.apk` and sideload it:
+PR builds also upload an APK artifact (Actions tab → latest run → Artifacts) for testing before merge.
+
+### Alternative: EAS cloud build
 
 ```bash
 cd alarm-app
@@ -39,24 +52,20 @@ npx eas login          # one-time: free Expo account
 npm run build:apk      # cloud build (~10-15 min)
 ```
 
-When the build finishes, Expo gives you a download link. Transfer the APK to your phone and open it to install.
-
-**On your phone:**
-1. Enable **Install unknown apps** for your browser or file manager (Settings → Security)
-2. Download/open the APK
-3. Tap **Install** — the app runs on its own, like any normal Android app
-
-**Local build (optional, needs Android Studio):**
+### Development with Expo Go
 
 ```bash
-npm run build:apk:local
+cd alarm-app
+npm install
+npm start
 ```
 
-This produces an APK on your machine without using Expo's cloud servers.
+Scan the QR code with **Expo Go**, or press `a` / `i` for an emulator.
 
 ### Requirements
 
-- Node.js 18+
-- Expo Go app on a physical device, or an Android/iOS emulator
+- Node.js 18+ for local development
+- Android phone for installing the APK
+- Expo Go only if you want live dev reload (optional)
 
 > **Note:** Alarms use local push notifications. Grant notification permissions when prompted. On Android, exact alarm permissions may be required for reliable scheduling.

@@ -1,0 +1,85 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'alarm-app/**'
+      - '.github/workflows/build-apk.yml'
+  pull_request:
+    paths:
+      - 'alarm-app/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: alarm-app/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        working-directory: alarm-app
+        run: npm ci
+
+      - name: Generate native Android project
+        working-directory: alarm-app
+        run: npx expo prebuild --platform android --non-interactive
+
+      - name: Build debug APK
+        working-directory: alarm-app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Prepare APK for download
+        run: cp alarm-app/android/app/build/outputs/apk/debug/app-debug.apk WakeUp.apk
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WakeUp-debug-apk
+          path: WakeUp.apk
+          retention-days: 30
+
+      - name: Publish latest APK release
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: latest-apk
+          name: WakeUp Latest APK
+          body: |
+            Auto-built debug APK from commit `${{ github.sha }}`.
+
+            **Install on Android**
+            1. Download `WakeUp.apk` below
+            2. Open the file on your phone
+            3. Allow install from this source if Android asks
+            4. Tap Install
+          artifacts: WakeUp.apk
+          allowUpdates: true
+          makeLatest: true
+          prerelease: true
+          replacesArtifacts: true
