@@ -13,6 +13,8 @@
       }
     },
     "android": {
+      "package": "com.animax.wakeup",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
